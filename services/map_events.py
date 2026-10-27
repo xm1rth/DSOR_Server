@@ -1890,6 +1890,22 @@ class MapEventService:
                 "quest 06 on h0004_temple_dun"
             )
             self._emit_map_signal(s, runtime, sandhill_signal)
+        tidal_entry_signal = "k0003_entry_loi_start_signal"
+        if (
+            kind == "playerenteredmap"
+            and map_key(runtime.map_id) == "k0002_greylingforest"
+            and "k0001-what-lies-within" in quests_accepted
+            and not any(
+                rule.signal_id.casefold() == tidal_entry_signal
+                for rule in rules
+            )
+        ):
+            # The authored Tidal Wildwood door only listens for the unrelated
+            # An Old Curse quest. What Lies Within also sends players there;
+            # let its accepted quest start the same entry-door event.
+            door_rule = runtime.catalog.rule(tidal_entry_signal)
+            if door_rule is not None:
+                rules = (*rules, door_rule)
         if (
             kind == "monsterseliminated"
             and _fractured_planes_floor_number_from_map(runtime.map_id)
