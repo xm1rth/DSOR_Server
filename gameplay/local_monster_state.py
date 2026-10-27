@@ -117,6 +117,10 @@ _CLIENT_SCENE_ACTOR_ID_MAPS = frozenset({
     "a0008_crypt_dun",
     "a0302_wildforest",
     "a0303_wildcave",
+    # Greyling Forest has eight authored SpawnPoints (quest Wisps, unique
+    # creatures, and scene mobs). The client can register these in the normal
+    # 0x30000 actor range, so server monsters must use the secondary range.
+    "k0002_greylingforest",
     # Torsrond's client scene registers authored SpawnPoints in the ordinary
     # 0x30000 range. Keep server controlled quest actors such as Captain
     # Ulkell in the secondary actor range to avoid that collision.
