@@ -117,6 +117,11 @@ _CLIENT_SCENE_ACTOR_ID_MAPS = frozenset({
     "a0008_crypt_dun",
     "a0302_wildforest",
     "a0303_wildcave",
+    # The Immortals event maps register authored SpawnPoints in the ordinary
+    # actor range; keep server-published quest mobs clear of those IDs.
+    "ce202502",
+    "ce202503",
+    "ce202504",
     # Greyling Forest has eight authored SpawnPoints (quest Wisps, unique
     # creatures, and scene mobs). The client can register these in the normal
     # 0x30000 actor range, so server monsters must use the secondary range.
@@ -410,6 +415,27 @@ SPAWN_AREA_MAX_TOTAL_MONSTERS = max(
 # other maps use their map-scoped normal monster templates as a deterministic
 # fallback.
 _SPAWN_LIST_TEMPLATE_OVERRIDES = {
+    # The Immortals event's SpawnList registry is absent from static.db4.
+    # These map lists explicitly name the Forlorns and Mindless Fiends needed
+    # by the event's main-quest kill objectives.
+    "ce202502": {
+        "ce202502_mindless_drifters": (
+            "ce2025_monster_mindless_drifters",
+        ),
+    },
+    "ce202503": {
+        "mindless_drifters": (
+            "ce2025_monster_mindless_drifters",
+        ),
+        "ce202502_mindless_fiends": (
+            "ce2025_monster_mindless_fiends",
+        ),
+    },
+    "ce202504": {
+        "ce202502_mindless_fiends": (
+            "ce2025_monster_mindless_fiends",
+        ),
+    },
     # The Dragan fortress database has authored main-hall density areas with
     # an 8-minute respawn interval, but its list_mainhall membership is not
     # included in static.db4. Populate those areas with the map's ordinary
