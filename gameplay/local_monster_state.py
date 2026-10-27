@@ -121,6 +121,10 @@ _CLIENT_SCENE_ACTOR_ID_MAPS = frozenset({
     # creatures, and scene mobs). The client can register these in the normal
     # 0x30000 actor range, so server monsters must use the secondary range.
     "k0002_greylingforest",
+    # Tidal Wildwood has hundreds of authored SpawnPoints, including its
+    # Lord of Ashes encounter. The client scene can reserve these ordinary
+    # actor IDs before server monsters are announced.
+    "k0003_tidalwildwood",
     # Torsrond's client scene registers authored SpawnPoints in the ordinary
     # 0x30000 range. Keep server controlled quest actors such as Captain
     # Ulkell in the secondary actor range to avoid that collision.
