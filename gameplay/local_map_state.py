@@ -1037,8 +1037,7 @@ _TIERED_MAP_EXIT_TARGET_GROUPS = {
     "pw207_village_02_dun": (
         "pw200_cardhun_dun", "pw208_rangervillage_dun",
     ),
-    # The K-series return portals use matching destination tiers in Tidal
-    # Wildwood; Greyling's single Kingshill exit is shared by all tiers.
+    # Tidal Wildwood has matching return exits for each Greyling difficulty.
     "k0003_tidalwildwood": ("k0002_greylingforest",),
 }
 

@@ -3,7 +3,9 @@
 The extracted map databases are local assets and are not committed. Run this
 after refreshing them with ``setup_client_assets.py``. Pass the client's
 ``dlcache/export_win32/maps`` directory as an additional ``--map-dir`` so the
-same scene entities are present in the running client.
+same scene entities are present in the running client. Pass its
+``dlcache/export_win32/db/static.db4`` with ``--static-db`` to supply a readable
+Greyling Forest map name to the client.
 """
 
 from __future__ import annotations
@@ -28,7 +30,7 @@ ROUTES = {
     },
     "k0003_tidalwildwood": {
         "entry_name": "Entrypoint",
-        "destination": "k0002_greylingforest",
+        "destination": "k0002_greylingforest_diff_{difficulty}",
         "destination_entry": "Entrypoint",
         "source_prefix": "k0003_tidalwildwood_diff_",
         "source_destination": "k0004_hallofparadoxes_diff_",
@@ -88,8 +90,14 @@ def patch_map_database(path: Path) -> int:
                 (route["exit_prefix"] + "_diff_%", keep_id),
             )
             connection.execute(
-                "UPDATE _Instance_InteractExit SET ParentNodeIndex=0 WHERE Id=?",
-                (keep_id,),
+                "UPDATE _Instance_InteractExit "
+                "SET ParentNodeIndex=0, EventSetRow=-1, State='active', "
+                "ExitURL=?, EntryName=?, Name=?, _ID=? WHERE Id=?",
+                (
+                    route["destination"].format(difficulty="00"),
+                    route["destination_entry"],
+                    keep_id, keep_id, keep_id,
+                ),
             )
             existing = {
                 str(row[0])
@@ -118,6 +126,28 @@ def patch_map_database(path: Path) -> int:
         for difficulty, source in source_variations:
             exit_id = f"{route['exit_prefix']}_diff_{difficulty}"
             if exit_id in existing:
+                if route.get("single_root_gate"):
+                    connection.execute(
+                        "UPDATE _Instance_InteractExit "
+                        "SET ParentNodeIndex=0, EventSetRow=-1, State='active', "
+                        "ExitURL=?, EntryName=?, Name=?, _ID=? WHERE Id=?",
+                        (
+                            route["destination"].format(difficulty=difficulty),
+                            route["destination_entry"],
+                            exit_id, exit_id, exit_id,
+                        ),
+                    )
+                else:
+                    connection.execute(
+                        "UPDATE _Instance_InteractExit "
+                        "SET ParentNodeIndex=?, EventSetRow=-1, State='active', "
+                        "ExitURL=?, EntryName=?, Name=?, _ID=? WHERE Id=?",
+                        (
+                            int(source["ParentNodeIndex"] or 0),
+                            route["destination"].format(difficulty=difficulty),
+                            route["destination_entry"], exit_id, exit_id, exit_id,
+                        ),
+                    )
                 continue
             row = dict(source)
             row.update(
@@ -132,7 +162,9 @@ def patch_map_database(path: Path) -> int:
                     ),
                     "EventSetRow": -1,
                     "Id": exit_id,
-                    "ExitURL": route["destination"],
+                    "ExitURL": route["destination"].format(
+                        difficulty=difficulty
+                    ),
                     "EntryName": route["destination_entry"],
                     "State": "active",
                     "Name": exit_id,
@@ -168,6 +200,12 @@ def main() -> int:
         type=Path,
         help="Map database directory; may be specified more than once.",
     )
+    parser.add_argument(
+        "--static-db",
+        action="append",
+        type=Path,
+        help="Static database to give Greyling Forest a display name; repeatable.",
+    )
     args = parser.parse_args()
     repository_root = Path(__file__).resolve().parents[1]
     map_dirs = args.map_dir or [repository_root / "data" / "maps"]
@@ -177,6 +215,36 @@ def main() -> int:
             count = patch_map_database(map_dir / f"{map_id}.db4")
             print(f"{map_dir / f'{map_id}.db4'}: added {count} return gate(s)")
             total += count
+    static_databases = args.static_db or [
+        repository_root / "data" / "db" / "static.db4"
+    ]
+    for static_db in static_databases:
+        if not static_db.is_file():
+            raise FileNotFoundError(static_db)
+        backup = static_db.with_name(
+            static_db.name + ".before-k-map-return-gates"
+        )
+        if not backup.exists():
+            shutil.copy2(static_db, backup)
+        connection = sqlite3.connect(static_db)
+        try:
+            connection.execute("BEGIN IMMEDIATE")
+            connection.execute(
+                "UPDATE _Template_MapTemplate SET MapName=? "
+                "WHERE MapTemplate='k0002_greylingforest'",
+                ("Greyling Forest",),
+            )
+            if connection.total_changes == 0:
+                raise RuntimeError(
+                    f"Greyling Forest map template is missing in {static_db}"
+                )
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            connection.close()
+        print(f"{static_db}: set Greyling Forest display name")
     print(f"Total added: {total}; original databases are backed up beside each file.")
     return 0
 
