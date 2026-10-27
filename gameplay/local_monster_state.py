@@ -501,19 +501,22 @@ _SPAWN_LIST_TEMPLATE_OVERRIDES = {
 }
 
 
-# Greyling Forest has no k0002_* monster templates, so its density areas
-# cannot build a default pool. Add the eight quest-region creatures here.
+# These three quest maps have density areas but no map-prefix monster
+# templates or fixed monsters to seed their default spawn pools.
+_K_SERIES_QUEST_REGION_MONSTERS = (
+    "necro_defender",
+    "blazing_wolf",
+    "test_spirit_archer_01",
+    "test_spirit_warrior_01",
+    "monster_wisp",
+    "monster_slime",
+    "tainted_sludge",
+    "lord_of_ashes",
+)
 _MAP_MONSTER_TEMPLATE_ADDITIONS = {
-    "k0002_greylingforest": (
-        "necro_defender",
-        "blazing_wolf",
-        "test_spirit_archer_01",
-        "test_spirit_warrior_01",
-        "monster_wisp",
-        "monster_slime",
-        "tainted_sludge",
-        "lord_of_ashes",
-    ),
+    "k0002_greylingforest": _K_SERIES_QUEST_REGION_MONSTERS,
+    "k0003_tidalwildwood": _K_SERIES_QUEST_REGION_MONSTERS,
+    "k0004_hallofparadoxes": _K_SERIES_QUEST_REGION_MONSTERS,
 }
 
 
