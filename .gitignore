@@ -50,3 +50,14 @@ data/db/*
 DSOClient/
 data/quests.pbxml
 data/client_unpacked/
+
+# Local client data and scratch directories.
+/data_261-192/
+/data_261-203/
+/scratch/
+
+# Local-only data files.
+/data/events.json
+/data/db/README.txt
+/data/maps/README.txt
+/data/navigation/README.txt
