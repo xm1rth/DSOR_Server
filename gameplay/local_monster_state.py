@@ -501,14 +501,6 @@ _SPAWN_LIST_TEMPLATE_OVERRIDES = {
 }
 
 
-# Greyling Forest's Portents of Death quest targets the shared monster_wisp
-# template, but the map's density population is otherwise limited to k0002_*
-# templates. Keep Wisps in the normal forest pool so that quest has live targets.
-_MAP_MONSTER_TEMPLATE_ADDITIONS = {
-    "k0002_greylingforest": ("monster_wisp",),
-}
-
-
 @dataclass(frozen=True)
 class MonsterAttackDefinition:
     """Database-owned autonomous skill and its matching wire command."""
@@ -2602,7 +2594,7 @@ def _load_map_monster_templates(
         "dummy",
         "invisible",
     )
-    templates = tuple(
+    return tuple(
         str(row[0])
         for row in rows
         if not any(
@@ -2610,8 +2602,6 @@ def _load_map_monster_templates(
             for fragment in excluded_fragments
         )
     )
-    additions = _MAP_MONSTER_TEMPLATE_ADDITIONS.get(str(map_id).casefold(), ())
-    return tuple(dict.fromkeys((*templates, *additions)))
 
 
 def _area_template_pool(
