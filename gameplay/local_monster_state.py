@@ -422,6 +422,13 @@ _SPAWN_LIST_TEMPLATE_OVERRIDES = {
         "ce202502_mindless_drifters": (
             "ce2025_monster_mindless_drifters",
         ),
+        # The server-side SpawnList registry is absent from static.db4.
+        # Grayshade's four "shijieshouwei" density areas are the Homunculi
+        # wave for Lost Souls; falling back to the map's fixed actors can
+        # populate them with unrelated templates that the quest cannot count.
+        "shijieshouwei": (
+            "ce2025_monster_shijieshouwei",
+        ),
     },
     "ce202503": {
         "mindless_drifters": (
