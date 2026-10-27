@@ -501,11 +501,19 @@ _SPAWN_LIST_TEMPLATE_OVERRIDES = {
 }
 
 
-# Greyling Forest's Portents of Death quest targets the shared monster_wisp
-# template, but the map's density population is otherwise limited to k0002_*
-# templates. Keep Wisps in the normal forest pool so that quest has live targets.
+# Greyling Forest has no k0002_* monster templates, so its density areas
+# cannot build a default pool. Add the eight quest-region creatures here.
 _MAP_MONSTER_TEMPLATE_ADDITIONS = {
-    "k0002_greylingforest": ("monster_wisp",),
+    "k0002_greylingforest": (
+        "necro_defender",
+        "blazing_wolf",
+        "test_spirit_archer_01",
+        "test_spirit_warrior_01",
+        "monster_wisp",
+        "monster_slime",
+        "tainted_sludge",
+        "lord_of_ashes",
+    ),
 }
 
 
