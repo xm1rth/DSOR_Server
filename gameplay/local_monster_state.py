@@ -442,6 +442,11 @@ _SPAWN_LIST_TEMPLATE_OVERRIDES = {
         "ce202502_mindless_fiends": (
             "ce2025_monster_mindless_fiends",
         ),
+        # Ashen Plains uses this density list for the Evil Eyes required by
+        # the Aether Tears quest. Its server-side SpawnList is not exported.
+        "monster_eye_demon": (
+            "ce2025_monster_eye_demon",
+        ),
     },
     # The Dragan fortress database has authored main-hall density areas with
     # an 8-minute respawn interval, but its list_mainhall membership is not
