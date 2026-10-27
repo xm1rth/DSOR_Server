@@ -1037,6 +1037,9 @@ _TIERED_MAP_EXIT_TARGET_GROUPS = {
     "pw207_village_02_dun": (
         "pw200_cardhun_dun", "pw208_rangervillage_dun",
     ),
+    # The K-series return portals use matching destination tiers in Tidal
+    # Wildwood; Greyling's single Kingshill exit is shared by all tiers.
+    "k0003_tidalwildwood": ("k0002_greylingforest",),
 }
 
 
@@ -1286,6 +1289,10 @@ def _exit_info_entries_for_access(
 
 
 _NATIVE_SCENE_EXIT_TARGETS = {
+    # The K-series maps have no authored return-gate entities in their base
+    # scenes. Their extracted map DBs include the added gates by GUID.
+    "k0002_greylingforest": ("k0001_maincity",),
+    "k0003_tidalwildwood": ("k0002_greylingforest",),
     # Hiraja's quest gate must be materialized after its scene event starts.
     "h0001_hub": ("h0006_valley_dun",),
     # Cardhun's authored hub gates are absent from the loaded scene. The
