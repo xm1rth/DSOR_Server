@@ -23,6 +23,7 @@ from pathlib import Path
 import random
 import sqlite3
 
+from dso_server.runtime import resident_content
 from dso_server.runtime.context import *
 from dso_server.runtime.transport import Session
 from dso_server.gameplay.local_map_state import (
@@ -181,9 +182,43 @@ def _scheduled_event_ids_cached(path: str, mtime_ns: int, size: int) -> frozense
 def _scheduled_event_ids(static_database_path) -> frozenset[str]:
     """Ids of the global events only the event schedule may switch on."""
 
-    path = Path(static_database_path).resolve()
-    stat = path.stat()
+    path = resident_content.resolved(static_database_path)
+    stat = resident_content.stat(path)
     return _scheduled_event_ids_cached(str(path), stat.st_mtime_ns, stat.st_size)
+
+
+# Signals raised by a fight in the instance itself: a kill, a cleared wave.
+_COMBAT_SIGNAL_EVENTS = frozenset({
+    "playerkilledmonster",
+    "playerkillmonstergetscore",
+    "monsterseliminated",
+    "monsterseliminatedpercentage",
+})
+
+
+def _started_only_by_combat(event, signals) -> bool:
+    """Whether only an unconditioned fight in the instance starts ``event``.
+
+    BOSS_death (Big Paws' Kingshill and Bear's Den exits), Mortis' return
+    gate and the Easter egg's dungeon exits open for the run that won the
+    fight. Nothing in the character's quest log or map discoveries records
+    that outcome, so no durable fact may restore it on a later entry.
+    """
+
+    rules = tuple(
+        rule for rule in (signals.rule(signal_id) for signal_id in event.start_signals)
+        if rule is not None
+    )
+    return bool(rules) and all(
+        rule.event_type in _COMBAT_SIGNAL_EVENTS
+        and not (
+            rule.quest_accepted or rule.quest_not_accepted
+            or rule.quest_solved or rule.quest_not_solved
+            or rule.quest_task_done or rule.quest_task_not_done
+            or rule.maps_unlocked or rule.maps_not_unlocked
+        )
+        for rule in rules
+    )
 
 
 def _quest_log(s: Session) -> dict[str, QuestProgress]:
@@ -405,9 +440,14 @@ class QuestService:
             # The discovered destination is the strongest durable proof that
             # this character has passed the route gate. This also covers
             # authored signals that require only QuestAccepted and carry no
-            # completed task condition to recover after turn-in.
+            # completed task condition to recover after turn-in. A gate a
+            # fight opens is no route the character passed: everyone knows
+            # Kingshill, yet the Winter Summit's exit there waits for Big Paws.
             if destinations & discovered_maps and not (
-                event is not None and gated_by_open_quest_task(event)
+                event is not None and (
+                    gated_by_open_quest_task(event)
+                    or _started_only_by_combat(event, signals)
+                )
             ):
                 restored.add(flag)
                 continue

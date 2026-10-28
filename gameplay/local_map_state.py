@@ -12,6 +12,7 @@ import sqlite3
 import struct
 from pathlib import Path
 
+from dso_server.runtime import resident_content
 from dso_server.protocol.gameplay_protocol import (
     ActorPlacement,
     NewNPC,
@@ -252,8 +253,13 @@ def map_database_path(static_database_path: str | Path, map_id: str) -> Path:
     return static_database_path.parent.parent / "maps" / f"{map_id}.db4"
 
 
+@lru_cache(maxsize=None)
 def _active_client_map_database_path(map_id: str) -> Path | None:
-    """Return a map DB only when the running client's TOC selects that file."""
+    """Return a map DB only when the running client's TOC selects that file.
+
+    Answered once per map: map entries looked it up thousands of times, and
+    each lookup probed the client's download cache on disk.
+    """
 
     local_app_data = os.environ.get("LOCALAPPDATA")
     if not local_app_data:
@@ -370,7 +376,7 @@ def load_map_coordinate_frame(
 
     static_database_path = Path(static_database_path)
     path = static_database_path.parent.parent / "maps" / f"{map_id}.map"
-    data = path.read_bytes()[:44]
+    data = resident_content.read_bytes(path)[:44]
     if len(data) < 44 or data[:4] != b"MOSD" or data[8:12] != b"IPAM":
         raise ValueError(f"map {map_id!r} has an invalid IPAM header: {path}")
     # The IPAM transform starts with scale/rotation, then its float4 world
@@ -380,7 +386,7 @@ def load_map_coordinate_frame(
 
 
 def _open_read_only(path: Path) -> sqlite3.Connection:
-    if not path.is_file():
+    if not resident_content.is_file(path):
         raise FileNotFoundError(f"map database not found: {path}")
     return sqlite3.connect(f"file:{path}?mode=ro", uri=True)
 
@@ -498,8 +504,7 @@ def _cached_event_set_rows(
 def _event_set_rows_for(
     database: sqlite3.Connection, map_id: str,
 ) -> tuple[tuple[int, frozenset[str], frozenset[str]], ...]:
-    path = next((str(row[2]) for row in database.execute("PRAGMA database_list")
-                 if row[1] == "main"), "")
+    path = resident_content.database_path(database)
     if not path:
         # An in-memory database (tests) has no file identity to cache by.
         return _parse_event_set_rows(
@@ -1164,10 +1169,44 @@ def _tiered_exit_clusters(static_database_path, exits):
     return tuple(clusters)
 
 
+def _known_exit_destinations(static_database_path, destinations) -> set[str]:
+    """The destinations an access row or map template names."""
+
+    destinations = tuple(sorted(destinations))
+    if not destinations:
+        return set()
+    candidates = (*destinations, *(f"{value}_00" for value in destinations))
+    placeholders = ",".join("?" for _ in candidates)
+    with closing(_open_read_only(static_database_path)) as database:
+        known = {
+            str(row[0]) for row in database.execute(
+                "SELECT Id FROM _Template_MapAccessGroup "
+                f"WHERE Id IN ({placeholders})", candidates,
+            )
+        }
+        known.update(
+            str(row[0]) for row in database.execute(
+                "SELECT MapTemplate FROM _Template_MapTemplate "
+                f"WHERE MapTemplate IN ({placeholders})", candidates,
+            )
+        )
+    return {
+        value for value in destinations
+        if value in known or f"{value}_00" in known
+    }
+
+
 def _filter_tiered_exit_clusters(
     static_database_path, exits, selected_difficulty,
 ):
-    """Keep only the selected access tier at each shared authored gate."""
+    """Keep only the selected access tier at each shared authored gate.
+
+    Gates still author variations for tiers this release dropped: the Winter
+    Summit's Frozen Field portal also names e_b1205_dun_chr_2024_06, _08, _10
+    and _11, which have no access row. The client cannot label such a
+    destination ("LF:maps.names_report_bug"), and a cached GUID spawns that
+    variation over the selected one, so they leave with the other tiers.
+    """
     clusters = _tiered_exit_clusters(static_database_path, exits)
     if not clusters:
         return exits
@@ -1184,10 +1223,32 @@ def _filter_tiered_exit_clusters(
             clustered_guids.add(definition.instance_guid)
             if difficulty == chosen_difficulty:
                 selected_guids.add(definition.instance_guid)
-    return tuple(
+    gates = tuple(
+        definition.position for cluster in clusters for definition, _ in cluster
+    )
+    at_gate = tuple(
         definition for definition in exits
         if definition.instance_guid not in clustered_guids
-        or definition.instance_guid in selected_guids
+        and any(
+            all(abs(definition.position[axis] - gate[axis]) <= 1.0 for axis in range(3))
+            for gate in gates
+        )
+    )
+    known = _known_exit_destinations(
+        static_database_path,
+        {definition.destination_map_id for definition in at_gate},
+    )
+    dropped_guids = {
+        definition.instance_guid for definition in at_gate
+        if definition.destination_map_id not in known
+    }
+    return tuple(
+        definition for definition in exits
+        if definition.instance_guid not in dropped_guids
+        and (
+            definition.instance_guid not in clustered_guids
+            or definition.instance_guid in selected_guids
+        )
     )
 
 
