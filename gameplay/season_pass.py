@@ -26,6 +26,21 @@ SEASON_PASS_REWARD_COLUMNS = {
     "alternate": ("SeasonPassAward4", "SeasonPassAward5", "SeasonPassAward6"),
 }
 MAX_SEASON_PASS_REWARD_AMOUNT = 1_000_000
+# The level a season opens on. The client keeps a row locked on every track, the
+# free one too, until the pass level reaches it, so at level 0 nothing is open
+# and a ticket has no visible effect. Stock data would start at 0.
+SEASON_PASS_START_LEVEL = 1
+# Ticket item -> (its track's standard type, double type, is the double ticket).
+SEASON_PASS_TICKETS = {
+    "gold_pass": (1, 3, False),
+    "gold_pass_2": (1, 3, True),
+    "red_pass": (2, 4, False),
+    "red_pass_2": (2, 4, True),
+}
+SEASON_PASS_NO_SEASON_MESSAGE = (
+    "No Season Pass season is running right now. "
+    "Your pass was not used, so you can use it when the next season starts."
+)
 
 
 @dataclass(frozen=True)
@@ -45,8 +60,32 @@ class SeasonPassCatalog:
     reward_levels: Mapping[int, tuple[str, str, str]]
 
     def level_for_experience(self, experience: int) -> int:
-        return sum(1 for _level, threshold in self.level_thresholds
-                   if int(experience) >= threshold)
+        return max(SEASON_PASS_START_LEVEL, sum(
+            1 for _level, threshold in self.level_thresholds
+            if int(experience) >= threshold
+        ))
+
+
+def season_pass_ticket_types(template_id: str, pass_types) -> tuple[int, ...] | None:
+    """The pass types a ticket adds, () if it is refused, None if no ticket.
+
+    A standard ticket opens its track and a second one makes it double ("can be
+    purchased 2 times"). A double ticket does both at once, or upgrades a track
+    that has the standard pass: the client's shop (0x140254adc) stops selling it
+    then, but a ticket already in the bag is paid for. Either kind is refused
+    only once the track is double.
+    """
+
+    ticket = SEASON_PASS_TICKETS.get(str(template_id).casefold())
+    if ticket is None:
+        return None
+    standard, double, is_double = ticket
+    active = set(pass_types)
+    if double in active:
+        return ()
+    if standard in active:
+        return (double,)
+    return (standard, double) if is_double else (standard,)
 
 
 def parse_season_pass_reward(value: str) -> tuple[str, int]:
@@ -329,12 +368,14 @@ def season_pass_state_for_season(document, season_id: int | None) -> dict[str, o
     keep their levels. Activated tickets (pass types) carry over.
     """
     state = normalize_season_pass_state(document)
-    if season_id is None or state["season_id"] == int(season_id):
+    if season_id is None:
         return state
-    if state["season_id"]:
-        state.update(
-            level=0, experience=0, claimed_awards=(), awarded_awards=(),
-            mission_progress={}, login_day="",
-        )
-    state["season_id"] = int(season_id)
+    if state["season_id"] != int(season_id):
+        if state["season_id"]:
+            state.update(
+                level=0, experience=0, claimed_awards=(), awarded_awards=(),
+                mission_progress={}, login_day="",
+            )
+        state["season_id"] = int(season_id)
+    state["level"] = max(int(state["level"]), SEASON_PASS_START_LEVEL)
     return state
