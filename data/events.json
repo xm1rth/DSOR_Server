@@ -33,9 +33,139 @@
     {
       "event_id": 65539,
       "template_id": "fullmoon_event_02",
-      "state": "scheduled",
-      "starts_at": "2026-11-06T18:25:58.977234+00:00",
-      "ends_at": "2026-11-13T18:25:58.977234+00:00",
+      "state": "expired",
+      "starts_at": "2026-11-06T21:26:32.956227+00:00",
+      "ends_at": "2026-11-06T21:28:19.035948+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65540,
+      "template_id": "newmoon_event_02",
+      "state": "expired",
+      "starts_at": "2026-11-06T20:34:34.012797+00:00",
+      "ends_at": "2026-11-06T21:28:17.869275+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65541,
+      "template_id": "boss_bonus_event_02",
+      "state": "expired",
+      "starts_at": "2026-11-06T21:32:11.232140+00:00",
+      "ends_at": "2026-11-07T12:21:01.866504+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65542,
+      "template_id": "scaling_dungeon_kill_event_01",
+      "state": "expired",
+      "starts_at": "2026-11-07T12:21:12.050158+00:00",
+      "ends_at": "2026-11-07T15:00:17.362374+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65543,
+      "template_id": "e_sm_greed",
+      "state": "expired",
+      "starts_at": "2026-11-07T15:01:51.877654+00:00",
+      "ends_at": "2026-11-07T15:02:19.699556+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65544,
+      "template_id": "e_hh_01",
+      "state": "expired",
+      "starts_at": "2026-11-07T15:02:38.024103+00:00",
+      "ends_at": "2026-11-07T15:04:00.212905+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65545,
+      "template_id": "e_sm_greed",
+      "state": "expired",
+      "starts_at": "2026-11-07T15:03:56.995978+00:00",
+      "ends_at": "2026-11-07T16:06:21.317323+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65546,
+      "template_id": "anniversary_preheat_event",
+      "state": "expired",
+      "starts_at": "2026-11-07T17:06:32.904639+00:00",
+      "ends_at": "2026-11-07T17:06:45.500847+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65547,
+      "template_id": "anniversary_event",
+      "state": "expired",
+      "starts_at": "2026-11-07T17:07:08.112169+00:00",
+      "ends_at": "2026-11-07T17:21:42.044334+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65548,
+      "template_id": "dragan_event_03",
+      "state": "expired",
+      "starts_at": "2026-11-07T17:22:13.132084+00:00",
+      "ends_at": "2026-11-08T19:37:03.369332+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65549,
+      "template_id": "dragan_event_03_offer_attire",
+      "state": "expired",
+      "starts_at": "2026-11-07T17:22:36.553765+00:00",
+      "ends_at": "2026-11-07T17:24:13.056173+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65550,
+      "template_id": "dragan_event_03_offer_questUnlock",
+      "state": "expired",
+      "starts_at": "2026-11-07T17:23:21.924799+00:00",
+      "ends_at": "2026-11-07T17:24:06.042683+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65551,
+      "template_id": "dragan_event_03_mini",
+      "state": "expired",
+      "starts_at": "2026-11-07T17:24:01.898356+00:00",
+      "ends_at": "2026-11-08T14:19:25.499447+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65552,
+      "template_id": "bag_extension_xxl_event",
+      "state": "expired",
+      "starts_at": "2026-11-08T19:44:32.188862+00:00",
+      "ends_at": "2026-11-08T19:44:44.169713+00:00",
       "participation_default": true,
       "collectible_drop_chance": 0.35,
       "collectible_amount": 1
@@ -43,9 +173,9 @@
     {
       "event_id": 65553,
       "template_id": "halloween_event_01",
-      "state": "scheduled",
+      "state": "expired",
       "starts_at": "2026-11-08T19:46:00.116823+00:00",
-      "ends_at": "2026-11-15T19:46:00.116823+00:00",
+      "ends_at": "2026-11-10T18:00:08.454614+00:00",
       "participation_default": true,
       "collectible_drop_chance": 0.35,
       "collectible_amount": 1
@@ -53,9 +183,39 @@
     {
       "event_id": 65554,
       "template_id": "halloween_event_challenge_01",
-      "state": "scheduled",
+      "state": "expired",
       "starts_at": "2026-11-10T14:45:53.303870+00:00",
-      "ends_at": "2026-12-11T14:45:53.303870+00:00",
+      "ends_at": "2026-11-10T18:00:10.225308+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65555,
+      "template_id": "summer_festival_event_01_prefarming",
+      "state": "expired",
+      "starts_at": "2026-11-10T21:32:37.964376+00:00",
+      "ends_at": "2026-11-10T21:33:15.257858+00:00",
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65557,
+      "template_id": "summer_festival_event_01",
+      "state": "active",
+      "starts_at": "2026-11-10T21:18:56.123628+00:00",
+      "ends_at": null,
+      "participation_default": true,
+      "collectible_drop_chance": 0.35,
+      "collectible_amount": 1
+    },
+    {
+      "event_id": 65558,
+      "template_id": "summer_festival_event_01_quests",
+      "state": "scheduled",
+      "starts_at": "2026-11-10T21:18:56.123628+00:00",
+      "ends_at": "2026-12-11T22:41:37.553536+00:00",
       "participation_default": true,
       "collectible_drop_chance": 0.35,
       "collectible_amount": 1

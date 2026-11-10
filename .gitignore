@@ -50,3 +50,13 @@ data/db/*
 DSOClient/
 data/quests.pbxml
 data/client_unpacked/
+
+# Local-only development artifacts
+/data/loot_rates.json
+/data/quests.xml.bak-*
+/data/static.db4
+/docs/MAP_CONTENT_RUNTIME_DIAGNOSTICS.md
+/scratch/
+/tests/test_battlecry_taunt.py
+/tests/test_client_settings_old_visuals.py
+/tests/test_parallel_world_jewels.py
